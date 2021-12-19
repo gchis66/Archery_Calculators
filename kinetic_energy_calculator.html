@@ -1,0 +1,156 @@
+<head>
+    
+
+</head>
+
+<style>
+ 
+   input[type="number"]
+{
+    font-size:1.5rem;
+    font-weight:bold;
+    width:5rem;
+    text-align: center;
+    height:auto;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #ccc;
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 10%);
+    color: rgba(0,0,0,0.75);
+    transition: border-color 0.15s linear,background 0.15s linear;
+}
+.results{
+    font-size:1.2rem;
+}
+
+
+</style>
+
+<body>
+    <script src="https://unpkg.com/vue"></script>  
+ <div id="archery-calculator">  
+<div id="kinetic-energy-calc">
+<form>
+    <h3>Input the necessary information and learn kinetic energy, velocity, and momentum!</h3>
+    <p>
+    <label for="IBO">Bow Manufacturer IBO Speed (ft/sec)</label>
+    <input type="number" name="IBO" v-model.number="IBO">
+    </p>
+    <p>
+        <label for="drawLength">Draw Length (inches)</label>
+        <input type="number" name="drawLength" v-model.number="drawLength">
+    </p>
+<p>
+    <label for="drawWeight">Draw Weight (lbs)</label>
+    <input type="number" name="drawWeight" v-model.number="drawWeight">
+</p>
+<p>
+    <label for="arrowWeight">Arrow Weight (grains)</label>
+    <input type="number" name="arrowWeight" v-model.number="arrowWeight">
+</p>
+<p>
+    <label for="additionalWeight">Weight Added to String (grains)</label>
+    <input type="number" name="additionalWeight" v-model.number="additionalWeight">
+</p>
+
+
+</form>
+<div class="results">
+    <p v-model="calcKineticEnergy">Arrow Kinetic Energy = {{ calcKineticEnergy }} ft-lbs</p>
+    <p v-model="calcVelocity">Arrow Velocity = {{ calcVelocity }} ft/sec</p>
+    <p v-model="calcMomentum">Arrow Momentum = {{ calcMomentum }} slug-ft/sec</p>
+</div>
+</div> <!--End Kinetic container div-->
+<div id="foc-calc">
+    <h2>FOC Calculator</h2>
+    <h3>Input the necessary information and learn the Foward of Center balance point</h3>
+    <form>
+        <p>
+            <label for="arrowLength">Full Arrow Length (inches)</label>
+            <input type="number" name="arrowLength" v-model.number="arrowLength">
+        </p>
+        <p>
+            <label for="distanceFromNock">Distance from nock of the arrow to balance point of your arrow (inches)</label>
+            <input type="number" name="distanceFromNock" v-model.number="distanceFromNock">
+        </p>
+
+    </form>
+    <div class="results">
+        <p v-model="calcFoc">Arrow FOC = {{ calcFoc }}%</p>
+    </div>
+
+</div> <!-- End FOC div-->
+
+</div> <!--End Calculator container div -->
+
+</body>
+
+<script>
+new Vue({
+    el: "#archery-calculator",
+    data() {
+     return {
+        IBO:'',
+        drawLength:'',
+        drawWeight:'',
+        arrowWeight:'',
+        additionalWeight:'',
+        arrowLength:'',
+        distanceFromNock:''
+     }
+    },
+    computed: {
+        calcVelocity: function(e){
+            
+            let ibo = this.IBO;
+            let dL = this.drawLength;
+            let dW = this.drawWeight;
+            let aW = this.arrowWeight;
+            let adW = this.additionalWeight;
+            let result = ibo + (dL - 30) * 10 - adW / 3 + Math.min(0,-(aW - (5*dW))/ 3);
+            let truncated = Math.round(result);
+            if (truncated > 0){
+                return truncated;
+            }else{
+                return 0;
+            }
+            
+        },
+        calcKineticEnergy: function(){
+            let ibo = this.IBO;
+            let dL = this.drawLength;
+            let dW = this.drawWeight;
+            let aW = this.arrowWeight;
+            let adW = this.additionalWeight;
+            let s = ibo + (dL - 30) * 10 - adW / 3 + Math.min(0,-(aW - (5*dW))/ 3);
+            let result = (aW*(s**2))/450800;
+            let truncated = Math.round(result);
+            return truncated;
+
+        },
+        calcMomentum: function(){
+            let ibo = this.IBO;
+            let dL = this.drawLength;
+            let dW = this.drawWeight;
+            let aW = this.arrowWeight;
+            let adW = this.additionalWeight;
+            let velocity = ibo + (dL - 30) * 10 - adW / 3 + Math.min(0,-(aW - (5*dW))/ 3);
+            let momentum = (aW * velocity)/225400;
+            let truncated = momentum.toFixed(2);
+            return truncated;
+        },
+        calcFoc: function(){
+            let aL = this.arrowLength;
+            let dN = this.distanceFromNock;
+            let result = ((100 * (dN-(aL/2)))/aL);
+            if (result > 0) {
+                return result.toFixed(1);
+            }
+            else{
+                return 0;
+            }
+        }
+    }
+});
+
+</script>
